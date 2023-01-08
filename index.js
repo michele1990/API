@@ -12,7 +12,7 @@ const Pool = require('pg').Pool;
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
-    database: 'gfgbackend',
+    database: 'postgres',
     password: 'mypassword',
     dialect: 'postgres',
     port: 5432
@@ -45,14 +45,52 @@ pool.connect((err, client, release) => {
     })
 })
   
-app.get('/testdata', (req, res, next) => {
-    console.log("TEST DATA :");
-    pool.query('Select * from test')
+app.get('/books', (req, res, next) => {
+    console.log("books :");
+    pool.query('Select * from books')
         .then(testData => {
             console.log(testData);
             res.send(testData.rows);
         })
 })
+
+// request to get all the users by userName
+
+app.get('/books/:author', (req, res, next) => {
+    const author = req.params.author;
+    pool.query()
+        .then(testData => {
+            console.log(testData);
+            res.send(testData.rows);
+        })
+});
+
+
+app.get('/books/:author/:title', (req, res, next) => {
+    const author = req.params.author;
+    const title = req.params.title;
+    pool.query(`Select * from books where author = '${author}' and title = '${title}'`)
+        .then(testData => {
+            console.log(testData);
+            res.send(testData.rows);
+        })
+});
+
+app.post('/books', (req, res, next) => {
+    const book = req.body;
+    pool.query(`INSERT INTO books (title, author, genre, subgenre, height, publisher)
+                VALUES ('${book.title}', '${book.author}', '${book.genre}', '${book.subgenre}', ${book.height}, '${book.publisher}')`)
+        .then(() => {
+            res.send({ message: 'Book added successfully' });
+        })
+        .catch(err => {
+            res.status(500).send({ message: 'Error adding book' });
+        });
+});
+
+
+
+
   
 // Require the Routes API  
 // Create a Server and run it on the port 3000
@@ -64,4 +102,21 @@ const server = app.listen(4000, function () {
 
 
 // url for application
-// http://localhost:4000/testdata
+// http://localhost:4000/books
+
+
+// progetto:
+
+// prendere una serie di dati e renderli chiamabili tramite API si piu livelli.
+
+// portare la API su oracle CLOUD e usare un url external 
+
+// To find the process id (PID) associated with the port
+
+
+// ⇒ lsof -i tcp:3070 
+// COMMAND PID   USER  FD  TYPE DEVICE             SIZE/OFF NODE NAME 
+// node    44475 chen5 31u IPv4 0x8b1721168764e4bf 0t0 TCP *:strexec-s (LISTEN)
+// Then to kill the process
+
+// kill -9 44475
